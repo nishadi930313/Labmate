@@ -2,68 +2,6 @@ import matplotlib.pyplot as plt
 import numpy as np
 import cv2
 import math
-from bisect import bisect_left
-
-
-class Point:
-    def __init__(self, x, y):
-        self.x = x
-        self.y = y
-
-
-class Line:
-    def __init__(self, slope, intercept):
-        self.slope = slope
-        self.intercept = intercept
-
-    def value(self, x):
-        return self.slope * x + self.intercept
-
-
-def intersection(l1, l2):
-    x = (l2.intercept - l1.intercept) / (l1.slope - l2.slope)
-    y = l1.slope * x + l1.intercept
-    return Point(x, y)
-
-
-def perpendicular_distance(line, point):
-    numerator = abs(line.slope * point.x - point.y + line.intercept)
-    denominator = math.sqrt(line.slope ** 2 + 1)
-    return numerator / denominator
-
-
-def convex_hull_trick(points):
-    points.sort(key=lambda p: p.x)
-    lines = []
-    hull = []
-    for point in points:
-        line = Line(point.y / point.x, point.y - point.x * point.y / point.x)
-        if len(lines) > 0:
-            i = bisect_left([intersection(lines[h], lines[h + 1])
-                            for h in hull[:-1]], point.x)
-            line = lines[hull[i]] if i < len(hull) else lines[hull[-1]]
-            while len(hull) > 1 and intersection(lines[hull[-2]], lines[hull[-1]]).x < point.x:
-                hull.pop()
-                line = lines[hull[-1]]
-            if len(hull) > 0 and lines[hull[-1]].slope == line.slope:
-                hull.pop()
-        lines.append(line)
-        hull.append(len(lines) - 1)
-    return lines
-
-
-def solve(points):
-    lines = convex_hull_trick(points)
-    min_distance = float('inf')
-    min_line = None
-    for line in lines:
-        print(line.slope)
-        distance = sum(perpendicular_distance(line, point) for point in points)
-        if distance < min_distance:
-            min_distance = distance
-            min_line = line
-    return min_line
-
 
 
 def find_people_in_queue(bounding_boxes):
