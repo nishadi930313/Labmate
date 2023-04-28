@@ -7,11 +7,10 @@ import math
 def find_people_in_queue(bounding_boxes):
 # bounding_boxes is an array of arrays, each array containing multiple (x,y) points representing the center of each bounding boxe  
 
-    bounding_boxes = bounding_boxes[0] # just to reduce nb of instance for testing
+    bounding_boxes = bounding_boxes[:1] # just to reduce nb of instance for testing
 
     for instance in bounding_boxes:
         # Define the input points
-        #points = np.array([(1, 2.5), (3.5, 4), (5, 5), (7, 8), (0.1, 7), (9, 8)], np.float32)
         points = np.array(instance, np.float32)
 
         # Compute the convex hull
@@ -29,15 +28,25 @@ def find_people_in_queue(bounding_boxes):
         line_points = [(min(x_coords), m*min(x_coords) + c),
                     (max(x_coords), m*max(x_coords) + c)]
 
-        # Plot the input points, convex hull, and the line that minimizes the perpendicular distance (plot people in the line)
         threshold = 2 # Another approach is to use a statistical method, such as calculating the mean and standard deviation of the distances between the convex hull line and the mid-points of the bounding boxes, and then setting the threshold as a multiple of the standard deviation (e.g. 2 or 3 times the standard deviation).
+        pts_inside_hull = []
+        pts_outside_hull = []
         for point in points:
             distance = abs(m*point[0] - point[1] + c) / math.sqrt(m**2 + 1)
             if distance <= threshold:
-                plt.plot(point[0], point[1], 'o', color='green')
+                pts_inside_hull.append(point)
             else:
-                plt.plot(point[0], point[1], 'o', color='red')
-        plt.plot(*zip(*hull_points), 'r-')
-        plt.plot(*zip(*line_points), 'k-')
-        plt.show()
+                pts_outside_hull.append(point)
+            
+        return pts_inside_hull, pts_outside_hull, hull_points, line_points
+        
 
+def plot(pts_inside_hull, pts_outside_hull, hull_points, line_points):
+    # Plot the input points, convex hull, and the line that minimizes the perpendicular distance (plot people in the line)
+    for p in pts_inside_hull:
+        plt.plot(p[0], p[1], 'o', color='green')
+    for p in pts_outside_hull:
+        plt.plot(p[0], p[1], 'o', color='red')
+    plt.plot(*zip(*hull_points), 'r-')
+    plt.plot(*zip(*line_points), 'k-')
+    plt.show()

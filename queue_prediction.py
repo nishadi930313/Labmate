@@ -15,4 +15,8 @@ out = faster_rcnn.run_inference()
 
 points = faster_rcnn.get_bounding_boxes_centers(out)
 
-find_people_in_queue(points)
+people_in_queue, _, _, _ = find_people_in_queue(points)
+
+number_people_per_image = [len(p) for p in people_in_queue]
+
+print(number_people_per_image)
