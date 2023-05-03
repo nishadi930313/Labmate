@@ -7,7 +7,7 @@ from queue_orientation import *
 from queue_framing import *
 
 
-def plot_image_with_points(image_path, points, saving_folder=None):
+def plot_image_with_points(image_path, points, saving_folder=None, line1=None, line2=None): # line = (m,c)
     image_name = image_path.split("/")[-1]
     # Load the image using cv2
     image = cv2.imread(image_path)
@@ -22,6 +22,19 @@ def plot_image_with_points(image_path, points, saving_folder=None):
     ax.imshow(image)
     # Plot the points as red circles with a radius of 5 pixels
     ax.scatter(x_coords, y_coords, s=5**2, c='r')
+    # Plot the lines
+    if line1 != None:
+        x1 = 0
+        y1 = m1 * x1 + c1
+        x2 = img_shape[1]
+        y2 = m1 * x2 + c1
+        plt.plot([x1, x2], [y1, y2], color='blue')
+    if line2 != None:
+        x1 = 0
+        y1 = m2 * x1 + c2
+        x2 = img_shape[1]
+        y2 = m2 * x2 + c2
+        plt.plot([x1, x2], [y1, y2], color='blue')
     # Set the x and y limits to match the image dimensions
     ax.set_xlim(0, image.shape[1])
     ax.set_ylim(image.shape[0], 0)
@@ -49,6 +62,7 @@ model_checkpoint = "COCO-Detection/faster_rcnn_R_50_C4_1x.yaml"
 if model == "faster_rcnn":
     faster_rcnn = inference.FasterRCNN(directory, model_config_file, model_checkpoint)
     out = faster_rcnn.run_inference()
+    img_shape = out[0]["instances"].image_size # take shape of first image of the dir by default
     #faster_rcnn.show_outputs(out)
     points = faster_rcnn.get_bounding_boxes_centers(out)
 
@@ -60,14 +74,17 @@ if method == "queue_orientation":
     number_people_per_image = [len(p) for p in people_in_queue]
     print(number_people_per_image)
 elif method == "framing":
-    people_in_queue = find_points_between_lines(points)
+    m1, c1, m2, c2 = find_slop_intercept_values(img_shape) # l1_bottom, l1_top, l2_bottom, l2_top
+    print(m1)
+    print(m2)
+    people_in_queue = find_points_between_lines(points, m1, c1, m2, c2)
     number_people_per_image = [len(p) for p in people_in_queue]
     print(number_people_per_image)
 
 # plot (and save) results
 i = 0
 for im_name in os.listdir(directory):
-    plot_image_with_points(directory + "/" + im_name, people_in_queue[i])
+    plot_image_with_points(directory + "/" + im_name, people_in_queue[i], line1=(m1,c1), line2=(m2,c2))
     i += 1
 
 

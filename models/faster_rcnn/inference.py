@@ -23,8 +23,6 @@ class FasterRCNN:
         self.model_config_file = model_config_file
         self.model_checkpoint = model_checkpoint
 
-        self.im_list = self.load_images()
-
         self.cfg = get_cfg()
         self.cfg.merge_from_file(model_zoo.get_config_file(self.model_config_file))
         self.cfg.MODEL.ROI_HEADS.SCORE_THRESH_TEST = 0.5
@@ -57,26 +55,27 @@ class FasterRCNN:
         obj.set('pred_boxes',boxes1)
         return {'instances':obj}
 
-    def show_outputs(self, outputs):
+    def show_outputs(self, outputs, im_list):
         i = 0
         for output in outputs:
-            v = Visualizer(self.im_list[i][:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]), scale=1.2)
+            v = Visualizer(im_list[i][:, :, ::-1], MetadataCatalog.get(self.cfg.DATASETS.TRAIN[0]), scale=1.2)
             out = v.draw_instance_predictions(output["instances"].to("cpu"))
             cv2_imshow(out.get_image()[:, :, ::-1])
             plt.show()
             i += 1
 
     def run_inference(self):
+        im_list = self.load_images()
+
         outputs = []
-        for im in self.im_list:
+        for im in im_list:
             outputs.append(self.predictor(im))
 
         modified_outputs = []
         for i in range(len(outputs)):
-            modified_outputs.append(self.onlykeep_person_class(outputs[i], self.im_list[i]))
+            modified_outputs.append(self.onlykeep_person_class(outputs[i], im_list[i]))
 
         return modified_outputs
-    
 
     def get_bounding_boxes_centers(self, modified_outputs):
         centered_outputs = []
