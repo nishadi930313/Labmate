@@ -40,14 +40,15 @@ def plot_image_with_points(image_path, points, saving_folder=None, line1=None, l
     ax.set_ylim(image.shape[0], 0)
     # Save image
     if saving_folder is not None:
-        plt.savefig(saving_folder + "/" + image_name, image)
+        s = saving_folder + "/" + image_name
+        plt.savefig(s)
     # Show the plot
     plt.show()
 
 
 # pick method to use to extract people queuing among all people deteted
 methods = ["framing", "queue_orientation"]
-method = methods[0]
+method = methods[1]
 
 # pick model for inferrence
 models = ["faster_rcnn"]
@@ -84,7 +85,13 @@ elif method == "framing":
 # plot (and save) results
 i = 0
 for im_name in os.listdir(directory):
-    plot_image_with_points(directory + "/" + im_name, people_in_queue[i], line1=(m1,c1), line2=(m2,c2))
+    d = directory.split("/")
+    saving_dir = d[0]
+    for s in d[1:len(d)-1]:                                                                                                                           
+        saving_dir = saving_dir + "/" + s
+    saving_dir = saving_dir + "/out_orientation"
+    #plot_image_with_points(directory + "/" + im_name, people_in_queue[i], line1=(m1,c1), line2=(m2,c2), saving_folder=saving_dir)
+    plot_image_with_points(directory + "/" + im_name, people_in_queue[i], saving_folder=saving_dir)
     i += 1
 
 
