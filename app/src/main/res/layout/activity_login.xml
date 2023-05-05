@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+    <FrameLayout tools:context=".LoginActivity" android:padding="20dp" android:orientation="vertical" android:gravity="center_horizontal" android:layout_height="match_parent" android:layout_width="match_parent" xmlns:tools="http://schemas.android.com/tools" xmlns:android="http://schemas.android.com/apk/res/android">
+
+
+    <LinearLayout android:orientation="vertical" android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/email_login_form">
+
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/login_et_email" android:maxLines="1" android:inputType="textEmailAddress" android:hint="email"/>
+
+    <EditText android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/login_et_pwd" android:maxLines="1" android:inputType="textPassword" android:hint="password"/>
+
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/login_btn_login" android:text="login"/>
+
+    <Button android:layout_height="wrap_content" android:layout_width="match_parent" android:id="@+id/login_btn_join" android:text="join"/>
+
+</LinearLayout>
+
+</FrameLayout>
