@@ -39,9 +39,6 @@ for i, frame in enumerate(frames):
     frames_tracked.append(frame_draw.resize((640, 360), Image.BILINEAR))
 print('\nDone')
 
-
-# Here, add code to display or save frames_tracked as you need
-
 dim = frames_tracked[0].size
 fourcc = cv2.VideoWriter_fourcc(*'mp4v')    
 video_tracked = cv2.VideoWriter('video_tracked.mp4', fourcc, 25.0, dim)
