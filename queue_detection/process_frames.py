@@ -1,3 +1,11 @@
+"""
+This script has to be run on server (EC2 port 400 for the moment) to:
+- retrieve image sent by send_frames.py script connected to camera
+- store image in S3
+- run inference on it
+- store inference result in RDS
+"""
+
 from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import shutil
@@ -20,7 +28,6 @@ password = '' # see server.py script in ec2 for credentials
 connection = pymysql.connect(host=host, user=user, password=password, database=database)
 sql = "INSERT INTO Inferences (dt, numpeople) VALUES (%s, %s)"
 
-# define a custom request handler to process an image: store it in S3, run inference on it, and store inference result in RDS
 class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # get the filename from the URL path
