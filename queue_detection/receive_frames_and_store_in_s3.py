@@ -2,12 +2,25 @@ from http.server import BaseHTTPRequestHandler, HTTPServer
 import os
 import shutil
 import boto3
+import pymysql
+from datetime import datetime
 
 # define the port to listen on
 PORT = 4000
+
+# configure S3 credentials
+s3 = boto3.client('s3',aws_access_key_id='',aws_secret_access_key='') # see server.py script in ec2 for credentials
 bucket_name = 'labmate'
 
-# define a custom request handler that saves the received frames to disk
+# configure RDS
+host = 'muc.cyzbfaoq6z0b.eu-north-1.rds.amazonaws.com'
+user = '' # see server.py script in ec2 for credentials
+database = 'example'
+password = '' # see server.py script in ec2 for credentials
+connection = pymysql.connect(host=host, user=user, password=password, database=database)
+sql = "INSERT INTO Inferences (dt, numpeople) VALUES (%s, %s)"
+
+# define a custom request handler to process an image: store it in S3, run inference on it, and store inference result in RDS
 class RequestHandler(BaseHTTPRequestHandler):
     def do_POST(self):
         # get the filename from the URL path
@@ -22,7 +35,17 @@ class RequestHandler(BaseHTTPRequestHandler):
             f.write(frame_bytes)
         # upload to s3
         s3.upload_file(os.path.join(temp_path,filename), bucket_name, filename)
-        # delete temp (ile                                                    )
+        # run inference
+        inference = 9 # need to call inference script here
+        # store inference result in RDS
+        try:
+            cursor = connection.cursor()
+            timestamp = datetime.now()
+            cursor.execute(sql, (timestamp, inference))
+            connection.commit()
+        except pymysql.Error as e:
+            print("Error occured when trying to store inference result into RDS: ", e)
+        # delete temp file                                                    
         shutil.rmtree(temp_path)
         # send a response back to the client
         self.send_response(200)
